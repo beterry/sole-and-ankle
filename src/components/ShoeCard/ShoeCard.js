@@ -31,6 +31,24 @@ const ShoeCard = ({
       ? 'new-release'
       : 'default'
 
+  const STYLES = {
+    'on-sale': {
+      title: 'Sale',
+      color: COLORS.primary,
+    },
+    'new-release': {
+      title: 'Just Released!',
+      color: COLORS.secondary,
+    },
+    'default': {
+      title: '',
+      color: 'red',
+    },
+  }
+
+  const style = STYLES[variant];
+  if (!style) throw new Error('Invalid variant in ShoeCard');
+
   return (
     <Link href={`/shoe/${slug}`}>
       <Wrapper>
@@ -40,11 +58,21 @@ const ShoeCard = ({
         <Spacer size={12} />
         <Row>
           <Name>{name}</Name>
-          <Price>{formatPrice(price)}</Price>
+          <Price
+            style={{
+              '--color': variant === 'on-sale' ? COLORS.gray[700] : undefined,
+              '--text-decoration': variant === 'on-sale' ? 'line-through' : undefined,
+            }}
+          >{formatPrice(price)}</Price>
         </Row>
         <Row>
           <ColorInfo>{pluralize('Color', numOfColors)}</ColorInfo>
+          {variant === 'on-sale' && <SalePrice>{formatPrice(salePrice)}</SalePrice>}
         </Row>
+        <VarientTag style={{
+          '--color': style.color,
+          '--display': variant === 'default' ? 'none' : 'block',
+        }}>{style.title}</VarientTag>
       </Wrapper>
     </Link>
   );
@@ -53,17 +81,30 @@ const ShoeCard = ({
 const Link = styled.a`
   text-decoration: none;
   color: inherit;
+
+  flex: 1 1 340px;
 `;
 
-const Wrapper = styled.article``;
-
-const ImageWrapper = styled.div`
+const Wrapper = styled.article`
   position: relative;
 `;
 
-const Image = styled.img``;
+const ImageWrapper = styled.div`
+  position: relative;
+
+  width: 100%;
+`;
+
+const Image = styled.img`
+  width: 100%;
+`;
 
 const Row = styled.div`
+  display: flex;
+  align-items: baseline;
+
+  justify-content: space-between;
+
   font-size: 1rem;
 `;
 
@@ -72,7 +113,10 @@ const Name = styled.h3`
   color: ${COLORS.gray[900]};
 `;
 
-const Price = styled.span``;
+const Price = styled.span`
+  color: var(--color);
+  text-decoration: var(--text-decoration);
+`;
 
 const ColorInfo = styled.p`
   color: ${COLORS.gray[700]};
@@ -82,5 +126,16 @@ const SalePrice = styled.span`
   font-weight: ${WEIGHTS.medium};
   color: ${COLORS.primary};
 `;
+
+const VarientTag = styled.div`
+  position: absolute;
+  top: 12px;
+  right: -4px;
+  width: fit-content;
+  background: var(--color);
+  color: white;
+  padding: 8px 12px;
+  display: var(--display);
+`
 
 export default ShoeCard;
